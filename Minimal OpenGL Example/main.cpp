@@ -5,8 +5,6 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <chrono>
-#include <thread>
 #include <cmath>
 #include <assert.h>
 
@@ -20,19 +18,9 @@ void checkCompileErrors(GLuint shader, std::string type);
 const GLint screenWidth = 800;
 const GLint screenHeight = 600;
 
-bool firstEnter = true;
-bool keys[1024];
-
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GL_TRUE);
-	}
-
-	if (action == GLFW_PRESS) {
-		keys[key] = true;
-	}
-	if (action == GLFW_RELEASE) {
-		keys[key] = false;
 	}
 }
 
@@ -46,7 +34,8 @@ void checkCompileErrors(GLuint shader, std::string type)
 		if (!success)
 		{
 			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-			std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "/n" << infoLog << "/n -- --------------------------------------------------- -- " << std::endl;
+			std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "/n" << infoLog 
+				<< "/n -- --------------------------------------------------- -- " << std::endl;
 		}
 	}
 	else
@@ -55,7 +44,8 @@ void checkCompileErrors(GLuint shader, std::string type)
 		if (!success)
 		{
 			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-			std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "/n" << infoLog << "/n -- --------------------------------------------------- -- " << std::endl;
+			std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "/n" << infoLog
+				<< "/n -- --------------------------------------------------- -- " << std::endl;
 		}
 	}
 }
@@ -85,7 +75,7 @@ int main(void) {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	glfwSetKeyCallback(window, key_callback);
 
-	glewExperimental = GL_TRUE;
+	//glewExperimental = GL_TRUE;
 
 	if (glewInit() != GLEW_OK) {
 		std::cout << "Failed to initialize GLEW" << std::endl;
@@ -140,14 +130,14 @@ int main(void) {
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragment, 1, &fShaderCode, NULL);
 	glCompileShader(fragment);
-	//checkCompileErrors(fragment, "FRAGMENT");
+	checkCompileErrors(fragment, "FRAGMENT");
 	
 	// shader Program
 	GLint ID = glCreateProgram();
 	glAttachShader(ID, vertex);
 	glAttachShader(ID, fragment);
 	glLinkProgram(ID);
-	//checkCompileErrors(ID, "PROGRAM");
+	checkCompileErrors(ID, "PROGRAM");
 	
 	// delete the shaders as they're linked into our program now and no longer necessery
 	glDeleteShader(vertex);
@@ -171,8 +161,6 @@ int main(void) {
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glfwSwapBuffers(window);
 	}
-
-	//std::cout << glfwWindowShouldClose(window) << std::endl;
 
 	glfwTerminate();
 
