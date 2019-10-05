@@ -83,7 +83,7 @@ int main(void) {
 	}
 
 	std::string vertexPath = "C:/Users/Damian/Documents/Programming/Cpp/Minimal OpenGL Example/Minimal OpenGL Example/shaders/vertex_shader.glsl";
-	std::string fragPath = "C:/Users/Damian/Documents/Programming/Cpp/Minimal OpenGL Example/Minimal OpenGL Example/shaders/vertex_shader.glsl";
+	std::string fragPath = "C:/Users/Damian/Documents/Programming/Cpp/Minimal OpenGL Example/Minimal OpenGL Example/shaders/fragment_shader.glsl";
 
 	std::string vertexCode;
 	std::string fragmentCode;
