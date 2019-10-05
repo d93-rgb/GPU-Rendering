@@ -2,12 +2,15 @@
 #define GLM_FORCE_RADIANS
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <vector>
 #include <chrono>
 #include <thread>
 #include <cmath>
 #include <assert.h>
 
+#include <glew.h>
 #include <GLFW/glfw3.h>
 
 
@@ -43,7 +46,7 @@ void checkCompileErrors(GLuint shader, std::string type)
 		if (!success)
 		{
 			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-			std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+			std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "/n" << infoLog << "/n -- --------------------------------------------------- -- " << std::endl;
 		}
 	}
 	else
@@ -52,7 +55,7 @@ void checkCompileErrors(GLuint shader, std::string type)
 		if (!success)
 		{
 			glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-			std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+			std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "/n" << infoLog << "/n -- --------------------------------------------------- -- " << std::endl;
 		}
 	}
 }
@@ -89,6 +92,9 @@ int main(void) {
 		return -1;
 	}
 
+	std::string vertexPath = "C:/Users/Damian/Documents/Programming/Cpp/Minimal OpenGL Example/Minimal OpenGL Example/shaders/vertex_shader.glsl";
+	std::string fragPath = "C:/Users/Damian/Documents/Programming/Cpp/Minimal OpenGL Example/Minimal OpenGL Example/shaders/vertex_shader.glsl";
+
 	std::string vertexCode;
 	std::string fragmentCode;
 
@@ -102,7 +108,7 @@ int main(void) {
 	{
 		// open files
 		vShaderFile.open(vertexPath);
-		fShaderFile.open(fragmentPath);
+		fShaderFile.open(fragPath);
 		std::stringstream vShaderStream, fShaderStream;
 		// read file's buffer contents into streams
 		vShaderStream << vShaderFile.rdbuf();
@@ -137,7 +143,7 @@ int main(void) {
 	//checkCompileErrors(fragment, "FRAGMENT");
 	
 	// shader Program
-	ID = glCreateProgram();
+	GLint ID = glCreateProgram();
 	glAttachShader(ID, vertex);
 	glAttachShader(ID, fragment);
 	glLinkProgram(ID);
@@ -160,7 +166,7 @@ int main(void) {
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		shaderProg.use();
+		glUseProgram(ID);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glfwSwapBuffers(window);
