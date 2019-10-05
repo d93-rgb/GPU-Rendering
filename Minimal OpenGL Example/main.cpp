@@ -158,7 +158,7 @@ int main(void) {
 
 		glUseProgram(ID);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
 		glfwSwapBuffers(window);
 	}
 
