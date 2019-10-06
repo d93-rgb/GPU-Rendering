@@ -7,12 +7,26 @@
 #include <windows.h>
 #include <ShellScalingApi.h>
 
+// Direct3D header
+#include <d3d11.h>
+
+// include the Direct3D Library file
+#pragma comment (lib, "d3d11.lib")
+
+// global declarations
+IDXGISwapChain* swapchain;             
+ID3D11Device* dev;                     
+ID3D11DeviceContext* devcon;           
+
 constexpr unsigned int WIDTH = 640;
 constexpr unsigned int HEIGHT = 480;
 
 auto EXIT_PROGRAM = false;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+bool init_d3d(HWND hWnd);
+void cleanup();
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	_In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -105,3 +119,5 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
+
+bool init_d3d();
