@@ -10,7 +10,8 @@
 
 // Direct3D header
 #include <d3d11.h>
-#include <DirectXPackedVector.h>
+//#include <DirectXPackedVector.h>
+#include <d3dcompiler.h>
 
 
 namespace DX
@@ -99,17 +100,24 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	// start Direct3D
 	init_d3d(hwnd);
 
+	ID3DBlob* vshader_blob;
+	compile_shader(L"../../../Minimal Direct3D Exmaple/shaders/vertexShader.hlsl",
+		"",
+		"vs_5_0",
+		&vshader_blob);
+
 	ShowWindow(hwnd, SW_SHOW);
+
+	float clear_color[4] = {
+			0.0, //red
+			0.0, //green
+			0.0, //blue
+			1.0  //alpha
+	};
 
 	// run the message loop
 	while (!EXIT_PROGRAM)
 	{
-		float clear_color[4] = {
-			0.0, //red
-			0.0, //green
-			0.0, //blue
-			1.0 }; //alpha
-
 		// clear the back buffer to a deep blue
 		devcon->ClearRenderTargetView(backbuffer, clear_color);
 
@@ -193,8 +201,7 @@ bool init_d3d(HWND hWnd)
 	devcon->OMSetRenderTargets(1, &backbuffer, nullptr);
 
 	// Set the viewport
-	D3D11_VIEWPORT viewport;
-	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+	D3D11_VIEWPORT viewport = {};
 
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
@@ -204,6 +211,48 @@ bool init_d3d(HWND hWnd)
 	devcon->RSSetViewports(1, &viewport);
 
 	return true;
+}
+
+HRESULT compile_shader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob** blob)
+{
+	if (!srcFile || !entryPoint || !profile || !blob)
+		return E_INVALIDARG;
+
+	*blob = nullptr;
+
+	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+#if defined( DEBUG ) || defined( _DEBUG )
+	flags |= D3DCOMPILE_DEBUG;
+#endif
+
+	const D3D_SHADER_MACRO defines[] =
+	{
+		"EXAMPLE_DEFINE", "1",
+		NULL, NULL
+	};
+
+	ID3DBlob* shaderBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
+	HRESULT hr = D3DCompileFromFile(srcFile, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		entryPoint, profile,
+		flags, 0, &shaderBlob, &errorBlob);
+	if (FAILED(hr))
+	{
+		if (errorBlob)
+		{
+			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+			errorBlob->Release();
+		}
+
+		if (shaderBlob)
+			shaderBlob->Release();
+
+		return hr;
+	}
+
+	*blob = shaderBlob;
+
+	return hr;
 }
 
 void cleanup()
