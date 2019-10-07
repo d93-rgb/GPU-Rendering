@@ -13,6 +13,7 @@
 //#include <DirectXPackedVector.h>
 #include <d3dcompiler.h>
 
+
 namespace DX
 {
 inline void ThrowIfFailed(HRESULT hr)
@@ -33,10 +34,6 @@ IDXGISwapChain* swapchain;
 ID3D11Device* dev;                     
 ID3D11DeviceContext* devcon;
 ID3D11RenderTargetView* backbuffer;
-ID3D11RasterizerState* raster_state;
-ID3D11Texture2D* m_depthStencilBuffer;
-
-
 
 constexpr unsigned int WIDTH = 640;
 constexpr unsigned int HEIGHT = 480;
@@ -47,8 +44,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 bool init_d3d(HWND hWnd);
 void cleanup();
-HRESULT compile_shader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob** blob);
-
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	_In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -106,125 +101,27 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	init_d3d(hwnd);
 
 	ID3DBlob* vshader_blob;
-	ID3DBlob* pshader_blob;
-	ID3D11VertexShader* vshader;
-	ID3D11PixelShader* pshader;
-
-	DX::ThrowIfFailed(compile_shader(L"../../../Minimal Direct3D Example/shaders/vertexShader.hlsl",
-		"main",
+	compile_shader(L"../../../Minimal Direct3D Exmaple/shaders/vertexShader.hlsl",
+		"",
 		"vs_5_0",
-		&vshader_blob));
-	DX::ThrowIfFailed(compile_shader(L"../../../Minimal Direct3D Example/shaders/pixelShader.hlsl",
-		"main",
-		"ps_5_0",
-		&pshader_blob));
-
-	DX::ThrowIfFailed(dev->CreateVertexShader(vshader_blob->GetBufferPointer(), 
-		vshader_blob->GetBufferSize(), NULL, &vshader));
-	DX::ThrowIfFailed(dev->CreatePixelShader(pshader_blob->GetBufferPointer(),
-		pshader_blob->GetBufferSize(), NULL, &pshader));
-
-	//D3D11_INPUT_ELEMENT_DESC polygonLayout;
-	//polygonLayout.SemanticName = "POSITION";
-	//polygonLayout.SemanticIndex = 0;
-	//polygonLayout.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	//polygonLayout.InputSlot = 0;
-	//polygonLayout.AlignedByteOffset = 0;
-	//polygonLayout.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	//polygonLayout.InstanceDataStepRate = 0;
-
-	//// Get a count of the elements in the layout.
-	////UINT numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
-	//UINT numElements = 1;
-
-	//ID3D11InputLayout* m_layout;
-	//// Create the vertex input layout.
-	//DX::ThrowIfFailed(dev->CreateInputLayout(&polygonLayout, numElements, vshader_blob->GetBufferPointer(),
-	//	vshader_blob->GetBufferSize(), &m_layout));
-
-	//ID3D11Buffer* m_vertexBuffer;
-	//D3D11_BUFFER_DESC vertexBufferDesc;
-	//D3D11_SUBRESOURCE_DATA vertexData;
-
-	//float vertices[] = {
-	//	1.0, 0.0, 0.0,
-	//	-1.0, 0.0, 0.0,
-	//	0.0, 1.0, 0.0
-	//};
-
-	//// Set up the description of the static vertex buffer.
-	//vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	//vertexBufferDesc.ByteWidth = sizeof(vertices);
-	//vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	//vertexBufferDesc.CPUAccessFlags = 0;
-	//vertexBufferDesc.MiscFlags = 0;
-	//vertexBufferDesc.StructureByteStride = 0;
-
-	//// Give the subresource structure a pointer to the vertex data.
-	//vertexData.pSysMem = vertices;
-	//vertexData.SysMemPitch = 0;
-	//vertexData.SysMemSlicePitch = 0;
-
-	//DX::ThrowIfFailed(dev->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer));
-
-	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
-	vshader_blob->Release();
-	vshader_blob = nullptr;
-
-	pshader_blob->Release();
-	pshader_blob = nullptr;
-
-	// Set the vertex and pixel shaders that will be used to render this triangle.
-	devcon->VSSetShader(vshader, nullptr, 0);
-	devcon->PSSetShader(pshader, nullptr, 0);
-
-	D3D11_RASTERIZER_DESC rasterizer_desc;
-	ID3D11RasterizerState* rasterizer_state;
-	rasterizer_desc.CullMode = D3D11_CULL_NONE;
-	rasterizer_desc.AntialiasedLineEnable = false;
-	rasterizer_desc.DepthBias = 0;
-	rasterizer_desc.DepthBiasClamp = 0.0f;
-	rasterizer_desc.DepthClipEnable = true;
-	rasterizer_desc.FillMode = D3D11_FILL_SOLID;
-	rasterizer_desc.FrontCounterClockwise = false;
-	rasterizer_desc.ScissorEnable = false;
-
-	dev->CreateRasterizerState(&rasterizer_desc, &rasterizer_state);
-	devcon->RSSetState(rasterizer_state);
+		&vshader_blob);
 
 	ShowWindow(hwnd, SW_SHOW);
-	SetForegroundWindow(hwnd);
 
 	float clear_color[4] = {
 			0.0, //red
-			0.3, //green
-			0.3, //blue
+			0.0, //green
+			0.0, //blue
 			1.0  //alpha
 	};
-	//UINT stride = 12;
-	//UINT offset = 0;
-
-	////devcon->IASetInputLayout(m_layout);
-	//// Set the vertex buffer to active in the input assembler so it can be rendered.
-	//devcon->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
-	//// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
-	//devcon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	devcon->IASetInputLayout(nullptr);
-	devcon->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
-	devcon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// run the message loop
 	while (!EXIT_PROGRAM)
 	{
-		// do 3D rendering on the back buffer here
-		
 		// clear the back buffer to a deep blue
-		devcon->OMSetRenderTargets(1, &backbuffer, nullptr);
-
 		devcon->ClearRenderTargetView(backbuffer, clear_color);
-		// Render the triangle.
-		devcon->Draw(3, 0);
+
+		// do 3D rendering on the back buffer here
 
 		// switch the back buffer and the front buffer
 		swapchain->Present(0, 0);
@@ -249,6 +146,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		EXIT_PROGRAM = true;
 		PostQuitMessage(0);
 		return 0;
+
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hwnd, &ps);
+
+		//FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+
+		EndPaint(hwnd, &ps);
+	}
+	return 0;
+
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
@@ -270,7 +179,7 @@ bool init_d3d(HWND hWnd)
 	DX::ThrowIfFailed(D3D11CreateDeviceAndSwapChain(nullptr,
 		D3D_DRIVER_TYPE_HARDWARE,
 		nullptr,
-		D3D11_CREATE_DEVICE_DEBUG,
+		0,
 		nullptr,
 		NULL,
 		D3D11_SDK_VERSION,
@@ -282,7 +191,7 @@ bool init_d3d(HWND hWnd)
 
 	// get the address of the back buffer
 	ID3D11Texture2D* pBackBuffer;
-	DX::ThrowIfFailed(swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer));
+	swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 
 	// use the back buffer address to create the render target
 	DX::ThrowIfFailed(dev->CreateRenderTargetView(pBackBuffer, nullptr, &backbuffer));
@@ -291,53 +200,11 @@ bool init_d3d(HWND hWnd)
 	// set the render target as the back buffer
 	devcon->OMSetRenderTargets(1, &backbuffer, nullptr);
 
-	D3D11_RASTERIZER_DESC rasterDesc;
-
-	// Setup the raster description which will determine how and what polygons will be drawn.
-	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
-	rasterDesc.DepthBias = 0;
-	rasterDesc.DepthBiasClamp = 0.0f;
-	rasterDesc.DepthClipEnable = true;
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.FrontCounterClockwise = false;
-	rasterDesc.MultisampleEnable = false;
-	rasterDesc.ScissorEnable = false;
-	rasterDesc.SlopeScaledDepthBias = 0.0f;
-
-	// Create the rasterizer state from the description we just filled out.
-	DX::ThrowIfFailed(dev->CreateRasterizerState(&rasterDesc, &raster_state));
-	
-	// Now set the rasterizer state.
-	devcon->RSSetState(raster_state);
-
-
-	D3D11_TEXTURE2D_DESC depthBufferDesc;
-
-	// Set up the description of the depth buffer.
-	depthBufferDesc.Width = WIDTH;
-	depthBufferDesc.Height = HEIGHT;
-	depthBufferDesc.MipLevels = 1;
-	depthBufferDesc.ArraySize = 1;
-	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthBufferDesc.SampleDesc.Count = 1;
-	depthBufferDesc.SampleDesc.Quality = 0;
-	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthBufferDesc.CPUAccessFlags = 0;
-	depthBufferDesc.MiscFlags = 0;
-
-	// Create the texture for the depth buffer using the filled out description.
-	DX::ThrowIfFailed(dev->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer));
-
-
 	// Set the viewport
 	D3D11_VIEWPORT viewport = {};
 
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
 	viewport.Width = WIDTH;
 	viewport.Height = HEIGHT;
 

@@ -10,13 +10,10 @@ set(CMAKE_WIN32_EXECUTABLE TRUE)
 set(SHCORE_LIB shcore)
 # Direct3D library
 set(DIRECT3D_11_LIB d3d11)
-# Direct3D compiler library
-set(DIRECT3D_11_COMPILER_LIB D3DCompiler)
 
 set(ALL_PROJECT_LIBS
 	${SHCORE_LIB}
-	${DIRECT3D_11_LIB}
-	${DIRECT3D_11_COMPILER_LIB})
+	${DIRECT3D_11_LIB})
 
 set(PROJECT_SOURCES "Minimal Direct3D Example/main.cpp")
 
