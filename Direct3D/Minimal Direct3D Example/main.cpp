@@ -10,7 +10,6 @@
 
 // Direct3D header
 #include <d3d11.h>
-//#include <DirectXPackedVector.h>
 #include <d3dcompiler.h>
 
 namespace DX
@@ -92,9 +91,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		hInstance,  // Instance handle
 		nullptr	// Additional application data
 	);
-	HMENU menu = GetMenu(hwnd);
-	SetWindowPos(hwnd, NULL, 0, 0, client_rect.right - client_rect.left, 
-		client_rect.bottom - client_rect.top, SWP_NOZORDER | SWP_NOMOVE);
+	/*SetWindowPos(hwnd, NULL, 0, 0, client_rect.right - client_rect.left, 
+		client_rect.bottom - client_rect.top, SWP_NOZORDER | SWP_NOMOVE);*/
 
 	if (hwnd == NULL)
 	{
@@ -191,11 +189,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	dev->CreateRasterizerState(&rasterizer_desc, &rasterizer_state);
 	devcon->RSSetState(rasterizer_state);
-
-	RECT cl_r;
-	GetClientRect(hwnd, &cl_r);
-
-	GetWindowRect(hwnd, &cl_r);
 
 	ShowWindow(hwnd, SW_SHOW);
 	SetForegroundWindow(hwnd);
