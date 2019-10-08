@@ -36,10 +36,8 @@ ID3D11RenderTargetView* backbuffer;
 ID3D11RasterizerState* raster_state;
 ID3D11Texture2D* m_depthStencilBuffer;
 
-
-
-constexpr unsigned int WIDTH = 640;
-constexpr unsigned int HEIGHT = 480;
+constexpr unsigned int WIDTH = 800;
+constexpr unsigned int HEIGHT = 600;
 
 auto EXIT_PROGRAM = false;
 
@@ -48,7 +46,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 bool init_d3d(HWND hWnd);
 void cleanup();
 HRESULT compile_shader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob** blob);
-
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	_In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
@@ -67,6 +64,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		exit(1);
 	}
 
+	// disable automatic rescaling 
+	SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE);
+
 	RECT client_rect = {
 		0,
 		0,
@@ -74,27 +74,27 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		HEIGHT
 	};
 
-	if (!AdjustWindowRect(&client_rect, WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME, false))
+	if (!AdjustWindowRect(&client_rect, WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION, false))
 	{
 		std::cout << "ERROR: Adjusting window rectangle failed." << std::endl;
 	}
-
-	// disable automatic rescaling 
-	SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE);
-
+	
 	HWND hwnd = CreateWindowEx(
 		0,                              // Optional window styles.
 		CLASS_NAME,     // Window class
 		L"Minimal Direct3D Example",    // Window text
-		WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME,    // prevent resizing
+		WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION ,    // prevent resizing
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		client_rect.right - client_rect.left,
 		client_rect.bottom - client_rect.top,
-		NULL,       // Parent window    
-		NULL,       // Menu
+		nullptr,       // Parent window    
+		nullptr,       // Menu
 		hInstance,  // Instance handle
-		NULL        // Additional application data
+		nullptr	// Additional application data
 	);
+	HMENU menu = GetMenu(hwnd);
+	SetWindowPos(hwnd, NULL, 0, 0, client_rect.right - client_rect.left, 
+		client_rect.bottom - client_rect.top, SWP_NOZORDER | SWP_NOMOVE);
 
 	if (hwnd == NULL)
 	{
@@ -192,6 +192,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	dev->CreateRasterizerState(&rasterizer_desc, &rasterizer_state);
 	devcon->RSSetState(rasterizer_state);
 
+	RECT cl_r;
+	GetClientRect(hwnd, &cl_r);
+
+	GetWindowRect(hwnd, &cl_r);
+
 	ShowWindow(hwnd, SW_SHOW);
 	SetForegroundWindow(hwnd);
 
@@ -224,7 +229,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 		devcon->ClearRenderTargetView(backbuffer, clear_color);
 		// Render the triangle.
-		devcon->Draw(3, 0);
+		devcon->Draw(6, 0);
 
 		// switch the back buffer and the front buffer
 		swapchain->Present(0, 0);
