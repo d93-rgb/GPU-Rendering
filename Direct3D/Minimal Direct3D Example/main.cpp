@@ -28,26 +28,36 @@ inline void ThrowIfFailed(HRESULT hr)
 //#pragma comment (lib, "d3d11.lib")
 
 // global declarations
-IDXGISwapChain* swapchain;             
-ID3D11Device* dev;                     
-ID3D11DeviceContext* devcon;
-ID3D11RenderTargetView* backbuffer;
-ID3D11RasterizerState* raster_state;
-ID3D11Texture2D* m_depthStencilBuffer;
+class GraphicsState
+{
+public:
+	ID3D11Device* dev;
+	ID3D11DeviceContext* devcon;
+	IDXGISwapChain* swapchain;
+	ID3D11RenderTargetView* backbuffer;
+	ID3D11Texture2D* m_depthStencilBuffer;
+	ID3D11RasterizerState* raster_state;
+
+	bool init(HWND hWnd);
+	void cleanup();
+};
 
 constexpr unsigned int WIDTH = 800;
 constexpr unsigned int HEIGHT = 600;
 
-auto EXIT_PROGRAM = false;
+static auto EXIT_PROGRAM = false;
 
+// callback function for the created window
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-bool init_d3d(HWND hWnd);
-void cleanup();
-HRESULT compile_shader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob** blob);
+HRESULT compile_shader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, 
+	_In_ LPCSTR profile, _Outptr_ ID3DBlob** blob);
 
-int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
-	_In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
+int WINAPI wWinMain(
+	_In_ HINSTANCE hInstance, 
+	_In_opt_ HINSTANCE hPrevInstance, 
+	_In_ LPWSTR lpCmdLine, 
+	_In_ int nCmdShow)
 {
 	const wchar_t CLASS_NAME[] = L"Sample Window Class";
 
@@ -239,7 +249,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	return 0;
 }
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WindowProc(
+	HWND hwnd, 
+	UINT uMsg, 
+	WPARAM wParam, 
+	LPARAM lParam)
 {
 	switch (uMsg)
 	{
@@ -344,7 +358,11 @@ bool init_d3d(HWND hWnd)
 	return true;
 }
 
-HRESULT compile_shader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob** blob)
+HRESULT compile_shader(
+	_In_ LPCWSTR srcFile,
+	_In_ LPCSTR entryPoint,
+	_In_ LPCSTR profile,
+	_Outptr_ ID3DBlob** blob)
 {
 	if (!srcFile || !entryPoint || !profile || !blob)
 		return E_INVALIDARG;
