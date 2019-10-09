@@ -27,7 +27,6 @@ inline void ThrowIfFailed(HRESULT hr)
 // include the Direct3D Library file
 //#pragma comment (lib, "d3d11.lib")
 
-// global declarations
 class GraphicsState
 {
 public:
@@ -35,75 +34,82 @@ public:
 	ID3D11DeviceContext* devcon;
 	IDXGISwapChain* swapchain;
 	ID3D11RenderTargetView* backbuffer;
-	ID3D11Texture2D* m_depthStencilBuffer;
-	ID3D11RasterizerState* raster_state;
+	ID3D11Texture2D* depthStencilBuffer;
+	ID3D11RasterizerState* rasterState;
 
-	bool init(HWND hWnd);
+	void init(HWND hWnd);
 	void cleanup();
 };
 
-constexpr unsigned int WIDTH = 800;
-constexpr unsigned int HEIGHT = 600;
+static constexpr UINT WIDTH = 800;
+static constexpr UINT HEIGHT = 600;
 
 static auto EXIT_PROGRAM = false;
 
 // callback function for the created window
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-HRESULT compile_shader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, 
+HRESULT compileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, 
 	_In_ LPCSTR profile, _Outptr_ ID3DBlob** blob);
 
+// entry point for graphical apps on Windows
 int WINAPI wWinMain(
 	_In_ HINSTANCE hInstance, 
 	_In_opt_ HINSTANCE hPrevInstance, 
 	_In_ LPWSTR lpCmdLine, 
 	_In_ int nCmdShow)
 {
-	const wchar_t CLASS_NAME[] = L"Sample Window Class";
+	const wchar_t CLASS_NAME[] = L"Window Class";
+
+	HWND hwnd;
+	WNDCLASS windowClass = {};
+	std::shared_ptr<GraphicsState> graphState(new GraphicsState());
+
+	RECT clientRect;
 
 	// create window and draw in it
-	WNDCLASS window_class = {};
-	window_class.style = CS_VREDRAW | CS_HREDRAW;
-	window_class.lpszClassName = CLASS_NAME;
-	window_class.lpfnWndProc = WindowProc;
+	windowClass.style = CS_VREDRAW | CS_HREDRAW;
+	windowClass.lpszClassName = CLASS_NAME;
+	windowClass.lpfnWndProc = WindowProc;
 
-	if (!RegisterClass(&window_class))
+	if (!RegisterClass(&windowClass))
 	{
-		MessageBox(NULL, L"Failed To Register the window class.", L"ERROR", MB_OK | MB_ICONEXCLAMATION);
+		MessageBox(NULL, L"Failed To Register the window class.", L"ERROR", 
+			MB_OK | MB_ICONEXCLAMATION);
 		exit(1);
 	}
 
 	// disable automatic rescaling 
 	SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE);
 
-	RECT client_rect = {
+	clientRect = {
 		0,
 		0,
 		WIDTH,
 		HEIGHT
 	};
 
-	if (!AdjustWindowRect(&client_rect, WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION, false))
+	if (!AdjustWindowRect(&clientRect, WS_SYSMENU | WS_MINIMIZEBOX | 
+		WS_MAXIMIZEBOX | WS_CAPTION, false))
 	{
 		std::cout << "ERROR: Adjusting window rectangle failed." << std::endl;
 	}
 	
-	HWND hwnd = CreateWindowEx(
-		0,                              // Optional window styles.
-		CLASS_NAME,     // Window class
-		L"Minimal Direct3D Example",    // Window text
-		WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION ,    // prevent resizing
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		client_rect.right - client_rect.left,
-		client_rect.bottom - client_rect.top,
-		nullptr,       // Parent window    
-		nullptr,       // Menu
-		hInstance,  // Instance handle
-		nullptr	// Additional application data
+	hwnd = CreateWindowEx(
+		0, // optional window styles.
+		CLASS_NAME,	// window class
+		L"Minimal Direct3D Example", // window text
+		WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION , // prevent resizing
+		CW_USEDEFAULT, // display screen x-coordinate of starting position
+		CW_USEDEFAULT, // display screen y-coordinate of starting position
+		clientRect.right - clientRect.left, // width of the to be created window
+		clientRect.bottom - clientRect.top, // height of the to be created window
+		nullptr, // parent window    
+		nullptr, // menu
+		hInstance, // instance handle
+		nullptr	// additional application data
 	);
-	/*SetWindowPos(hwnd, NULL, 0, 0, client_rect.right - client_rect.left, 
-		client_rect.bottom - client_rect.top, SWP_NOZORDER | SWP_NOMOVE);*/
-
+	
 	if (hwnd == NULL)
 	{
 		printf("ERROR: hwnd == NULL\n");
@@ -111,26 +117,28 @@ int WINAPI wWinMain(
 	}
 
 	// start Direct3D
-	init_d3d(hwnd);
+	graphState->init(hwnd);
 
-	ID3DBlob* vshader_blob;
-	ID3DBlob* pshader_blob;
+	ID3DBlob* vshaderBlob;
+	ID3DBlob* pshaderBlob;
 	ID3D11VertexShader* vshader;
 	ID3D11PixelShader* pshader;
 
-	DX::ThrowIfFailed(compile_shader(L"../../../Minimal Direct3D Example/shaders/vertexShader.hlsl",
+	DX::ThrowIfFailed(compileShader(L"../../../Minimal Direct3D Example/shaders/vertexShader.hlsl",
 		"main",
 		"vs_5_0",
-		&vshader_blob));
-	DX::ThrowIfFailed(compile_shader(L"../../../Minimal Direct3D Example/shaders/pixelShader.hlsl",
+		&vshaderBlob));
+	DX::ThrowIfFailed(compileShader(L"../../../Minimal Direct3D Example/shaders/pixelShader.hlsl",
 		"main",
 		"ps_5_0",
-		&pshader_blob));
+		&pshaderBlob));
 
-	DX::ThrowIfFailed(dev->CreateVertexShader(vshader_blob->GetBufferPointer(), 
-		vshader_blob->GetBufferSize(), NULL, &vshader));
-	DX::ThrowIfFailed(dev->CreatePixelShader(pshader_blob->GetBufferPointer(),
-		pshader_blob->GetBufferSize(), NULL, &pshader));
+	DX::ThrowIfFailed(graphState->dev->CreateVertexShader(
+		vshaderBlob->GetBufferPointer(),
+		vshaderBlob->GetBufferSize(), NULL, &vshader));
+	DX::ThrowIfFailed(graphState->dev->CreatePixelShader(
+		pshaderBlob->GetBufferPointer(),
+		pshaderBlob->GetBufferSize(), NULL, &pshader));
 
 	//D3D11_INPUT_ELEMENT_DESC polygonLayout;
 	//polygonLayout.SemanticName = "POSITION";
@@ -176,29 +184,15 @@ int WINAPI wWinMain(
 	//DX::ThrowIfFailed(dev->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer));
 
 	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
-	vshader_blob->Release();
-	vshader_blob = nullptr;
+	vshaderBlob->Release();
+	vshaderBlob = nullptr;
 
-	pshader_blob->Release();
-	pshader_blob = nullptr;
+	pshaderBlob->Release();
+	pshaderBlob = nullptr;
 
 	// Set the vertex and pixel shaders that will be used to render this triangle.
-	devcon->VSSetShader(vshader, nullptr, 0);
-	devcon->PSSetShader(pshader, nullptr, 0);
-
-	D3D11_RASTERIZER_DESC rasterizer_desc;
-	ID3D11RasterizerState* rasterizer_state;
-	rasterizer_desc.CullMode = D3D11_CULL_NONE;
-	rasterizer_desc.AntialiasedLineEnable = false;
-	rasterizer_desc.DepthBias = 0;
-	rasterizer_desc.DepthBiasClamp = 0.0f;
-	rasterizer_desc.DepthClipEnable = true;
-	rasterizer_desc.FillMode = D3D11_FILL_SOLID;
-	rasterizer_desc.FrontCounterClockwise = false;
-	rasterizer_desc.ScissorEnable = false;
-
-	dev->CreateRasterizerState(&rasterizer_desc, &rasterizer_state);
-	devcon->RSSetState(rasterizer_state);
+	graphState->devcon->VSSetShader(vshader, nullptr, 0);
+	graphState->devcon->PSSetShader(pshader, nullptr, 0);
 
 	ShowWindow(hwnd, SW_SHOW);
 	SetForegroundWindow(hwnd);
@@ -217,25 +211,24 @@ int WINAPI wWinMain(
 	//devcon->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
 	//// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	//devcon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	graphState->devcon->OMSetRenderTargets(1, &(graphState->backbuffer),
+		nullptr);
 
-	devcon->IASetInputLayout(nullptr);
-	devcon->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
-	devcon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	graphState->devcon->IASetInputLayout(nullptr);
+	graphState->devcon->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+	graphState->devcon->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// run the message loop
 	while (!EXIT_PROGRAM)
 	{
 		// do 3D rendering on the back buffer here
-		
-		// clear the back buffer to a deep blue
-		devcon->OMSetRenderTargets(1, &backbuffer, nullptr);
-
-		devcon->ClearRenderTargetView(backbuffer, clear_color);
+		graphState->devcon->ClearRenderTargetView(graphState->backbuffer,
+			clear_color);
 		// Render the triangle.
-		devcon->Draw(6, 0);
+		graphState->devcon->Draw(6, 0);
 
 		// switch the back buffer and the front buffer
-		swapchain->Present(0, 0);
+		graphState->swapchain->Present(0, 0);
 
 		MSG msg = { };
 		while (GetMessage(&msg, NULL, 0, 0))
@@ -245,7 +238,7 @@ int WINAPI wWinMain(
 		}
 	}
 
-	cleanup();
+	graphState->cleanup();
 	return 0;
 }
 
@@ -265,10 +258,14 @@ LRESULT CALLBACK WindowProc(
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-bool init_d3d(HWND hWnd)
+void GraphicsState::init(HWND hWnd)
 {
 	// create a struct to hold information about the swap chain
 	DXGI_SWAP_CHAIN_DESC scd = {};
+	D3D11_RASTERIZER_DESC rasterDesc;
+	D3D11_TEXTURE2D_DESC depthBufferDesc;
+	ID3D11Texture2D* pBackBuffer;
+	D3D11_VIEWPORT viewport = {};
 
 	// fill the swap chain description struct
 	scd.BufferCount = 1;                                    // one back buffer
@@ -293,7 +290,6 @@ bool init_d3d(HWND hWnd)
 		&devcon));
 
 	// get the address of the back buffer
-	ID3D11Texture2D* pBackBuffer;
 	DX::ThrowIfFailed(swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer));
 
 	// use the back buffer address to create the render target
@@ -303,11 +299,9 @@ bool init_d3d(HWND hWnd)
 	// set the render target as the back buffer
 	devcon->OMSetRenderTargets(1, &backbuffer, nullptr);
 
-	D3D11_RASTERIZER_DESC rasterDesc;
-
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
@@ -318,13 +312,10 @@ bool init_d3d(HWND hWnd)
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
 	// Create the rasterizer state from the description we just filled out.
-	DX::ThrowIfFailed(dev->CreateRasterizerState(&rasterDesc, &raster_state));
+	DX::ThrowIfFailed(dev->CreateRasterizerState(&rasterDesc, &rasterState));
 	
 	// Now set the rasterizer state.
-	devcon->RSSetState(raster_state);
-
-
-	D3D11_TEXTURE2D_DESC depthBufferDesc;
+	devcon->RSSetState(rasterState);
 
 	// Set up the description of the depth buffer.
 	depthBufferDesc.Width = WIDTH;
@@ -340,12 +331,9 @@ bool init_d3d(HWND hWnd)
 	depthBufferDesc.MiscFlags = 0;
 
 	// Create the texture for the depth buffer using the filled out description.
-	DX::ThrowIfFailed(dev->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer));
-
+	DX::ThrowIfFailed(dev->CreateTexture2D(&depthBufferDesc, NULL, &depthStencilBuffer));
 
 	// Set the viewport
-	D3D11_VIEWPORT viewport = {};
-
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = 0.0f;
@@ -354,11 +342,19 @@ bool init_d3d(HWND hWnd)
 	viewport.Height = HEIGHT;
 
 	devcon->RSSetViewports(1, &viewport);
-
-	return true;
 }
 
-HRESULT compile_shader(
+void GraphicsState::cleanup()
+{
+	swapchain->Release();
+	dev->Release();
+	devcon->Release();
+	backbuffer->Release();
+	rasterState->Release();
+	depthStencilBuffer->Release();
+}
+
+HRESULT compileShader(
 	_In_ LPCWSTR srcFile,
 	_In_ LPCSTR entryPoint,
 	_In_ LPCSTR profile,
@@ -402,12 +398,4 @@ HRESULT compile_shader(
 	*blob = shaderBlob;
 
 	return hr;
-}
-
-void cleanup()
-{
-	swapchain->Release();
-	dev->Release();
-	devcon->Release();
-	backbuffer->Release();
 }
