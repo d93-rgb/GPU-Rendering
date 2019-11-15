@@ -6,9 +6,9 @@
 #include <exception>
 
 #include <windows.h>
-#include <ShellScalingApi.h>
+#include <ShellScalingApi.h> // for correct display scaling detection
 
-// Direct3D header
+// Direct3D headers
 #include <d3d11.h>
 #include <d3dcompiler.h>
 
@@ -23,9 +23,6 @@ inline void ThrowIfFailed(HRESULT hr)
 	}
 }
 }
-
-// include the Direct3D Library file
-//#pragma comment (lib, "d3d11.lib")
 
 class GraphicsState
 {
@@ -49,6 +46,7 @@ static auto EXIT_PROGRAM = false;
 // callback function for the created window
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+// helper function for compiling HLSL code
 HRESULT compileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, 
 	_In_ LPCSTR profile, _Outptr_ ID3DBlob** blob);
 
@@ -139,49 +137,6 @@ int WINAPI wWinMain(
 	DX::ThrowIfFailed(graphState->dev->CreatePixelShader(
 		pshaderBlob->GetBufferPointer(),
 		pshaderBlob->GetBufferSize(), NULL, &pshader));
-
-	//D3D11_INPUT_ELEMENT_DESC polygonLayout;
-	//polygonLayout.SemanticName = "POSITION";
-	//polygonLayout.SemanticIndex = 0;
-	//polygonLayout.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	//polygonLayout.InputSlot = 0;
-	//polygonLayout.AlignedByteOffset = 0;
-	//polygonLayout.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	//polygonLayout.InstanceDataStepRate = 0;
-
-	//// Get a count of the elements in the layout.
-	////UINT numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
-	//UINT numElements = 1;
-
-	//ID3D11InputLayout* m_layout;
-	//// Create the vertex input layout.
-	//DX::ThrowIfFailed(dev->CreateInputLayout(&polygonLayout, numElements, vshader_blob->GetBufferPointer(),
-	//	vshader_blob->GetBufferSize(), &m_layout));
-
-	//ID3D11Buffer* m_vertexBuffer;
-	//D3D11_BUFFER_DESC vertexBufferDesc;
-	//D3D11_SUBRESOURCE_DATA vertexData;
-
-	//float vertices[] = {
-	//	1.0, 0.0, 0.0,
-	//	-1.0, 0.0, 0.0,
-	//	0.0, 1.0, 0.0
-	//};
-
-	//// Set up the description of the static vertex buffer.
-	//vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	//vertexBufferDesc.ByteWidth = sizeof(vertices);
-	//vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	//vertexBufferDesc.CPUAccessFlags = 0;
-	//vertexBufferDesc.MiscFlags = 0;
-	//vertexBufferDesc.StructureByteStride = 0;
-
-	//// Give the subresource structure a pointer to the vertex data.
-	//vertexData.pSysMem = vertices;
-	//vertexData.SysMemPitch = 0;
-	//vertexData.SysMemSlicePitch = 0;
-
-	//DX::ThrowIfFailed(dev->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer));
 
 	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
 	vshaderBlob->Release();
@@ -344,6 +299,7 @@ void GraphicsState::init(HWND hWnd)
 	devcon->RSSetViewports(1, &viewport);
 }
 
+// release all acquired resources
 void GraphicsState::cleanup()
 {
 	swapchain->Release();
