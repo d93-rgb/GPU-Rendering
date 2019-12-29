@@ -4,6 +4,8 @@
 
 #include <iostream>
 #include <exception>
+#include <cstdlib>
+#include <memory>
 
 #include <windows.h>
 #include <ShellScalingApi.h> // for correct display scaling detection
@@ -122,11 +124,24 @@ int WINAPI wWinMain(
 	ID3D11VertexShader* vshader;
 	ID3D11PixelShader* pshader;
 
-	DX::ThrowIfFailed(compileShader(L"../../../Minimal Direct3D Example/shaders/vertexShader.hlsl",
+	std::string vShaderPath = std::string(__FILE__) + "/../shaders/vertexShader.hlsl";
+	size_t vs_path_len = vShaderPath.size() + 1;
+	std::string pShaderPath = std::string(__FILE__) + "/../shaders/pixelShader.hlsl";
+	size_t ps_path_len = pShaderPath.size() + 1;
+
+	// convert char* to wchar_t* with multi byte string to wide char string function
+	auto vs_wc_path = std::make_unique<wchar_t[]>(vs_path_len); 
+	std::mbstowcs(vs_wc_path.get(), vShaderPath.c_str(), vShaderPath.size() + 1);
+
+	auto ps_wc_path = std::make_unique<wchar_t[]>(ps_path_len);
+	std::mbstowcs(ps_wc_path.get(), pShaderPath.c_str(), pShaderPath.size() + 1);
+
+	DX::ThrowIfFailed(compileShader(vs_wc_path.get(),
 		"main",
 		"vs_5_0",
 		&vshaderBlob));
-	DX::ThrowIfFailed(compileShader(L"../../../Minimal Direct3D Example/shaders/pixelShader.hlsl",
+	
+	DX::ThrowIfFailed(compileShader(ps_wc_path.get(),
 		"main",
 		"ps_5_0",
 		&pshaderBlob));
@@ -134,6 +149,7 @@ int WINAPI wWinMain(
 	DX::ThrowIfFailed(graphState->dev->CreateVertexShader(
 		vshaderBlob->GetBufferPointer(),
 		vshaderBlob->GetBufferSize(), NULL, &vshader));
+	
 	DX::ThrowIfFailed(graphState->dev->CreatePixelShader(
 		pshaderBlob->GetBufferPointer(),
 		pshaderBlob->GetBufferSize(), NULL, &pshader));

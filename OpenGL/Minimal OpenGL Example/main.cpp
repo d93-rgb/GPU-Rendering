@@ -11,6 +11,9 @@
 #include <glew.h>
 #include <GLFW/glfw3.h>
 
+#define MAKE_STR(x) _MAKE_STR(x)
+#define _MAKE_STR(x) #x
+
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void checkCompileErrors(GLuint shader, std::string type);
@@ -82,8 +85,10 @@ int main(void) {
 		return -1;
 	}
 
-	std::string vertexPath = "../../../Minimal OpenGL Example/shaders/vertex_shader.glsl";
-	std::string fragPath = "../../../Minimal OpenGL Example/shaders/fragment_shader.glsl";
+	MAKE_STR(MINIMAL_OPENGL_EXAMPLE_SHADER_SRC_DIR);
+	std::cout << __FILE__ << std::endl;
+	std::string vertexPath = std::string(__FILE__) + "/../shaders/vertex_shader.glsl";
+	std::string fragPath = std::string(__FILE__) + "/../shaders/fragment_shader.glsl";
 
 	std::string vertexCode;
 	std::string fragmentCode;

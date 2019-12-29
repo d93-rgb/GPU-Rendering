@@ -5,6 +5,11 @@ project(minimal_opengl_exmaple VERSION 1.0)
 if(NOT MSVC)
 	SET(COMP_FLAGS "-lGL -lglfw -lGLEW -std=c++11")
 	SET(CMAKE_CXX_FLAGS "${COMP_FLAGS}")
+else(NOT MSVC)
+	#target_compile_options(minimal_opengl_example PUBLIC /FC)
+	# important flag, for __FILE__ macro to have absolute path 
+	SET(COMP_FLAGS "/FC")
+	SET(CMAKE_CXX_FLAGS "${COMP_FLAGS}")
 endif(NOT MSVC)
 
 ###########################################################################
@@ -51,7 +56,7 @@ set(ALL_PROJECT_LIBRARIES
 #	${CMAKE_BINARY_DIR}/lib
 #	${CMAKE_BINARY_DIR}/bin)
 
-# Include sub-projects.
+# now include sub-projects
 add_subdirectory ("Minimal OpenGL Example")
 
 SET(PROJECT_SOURCES "Minimal OpenGL Example/main.cpp")
