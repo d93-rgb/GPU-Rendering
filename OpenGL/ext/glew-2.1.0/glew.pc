@@ -1,6 +1,6 @@
-prefix=C:/Users/Damian/Documents/Programming/Cpp/Minimal OpenGL Example/out/install/x64-Debug
+prefix=C:/Users/Damian/Documents/Programming/Cpp/ShaderCompileExample/out/install/x64-Debug
 exec_prefix=${prefix}
-libdir=C:/Users/Damian/Documents/Programming/Cpp/Minimal OpenGL Example/out/install/x64-Debug/lib
+libdir=C:/Users/Damian/Documents/Programming/Cpp/ShaderCompileExample/out/install/x64-Debug/lib
 includedir=${prefix}/include
 
 Name: glew

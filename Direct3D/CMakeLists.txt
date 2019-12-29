@@ -2,6 +2,9 @@ cmake_minimum_required (VERSION 3.9)
 cmake_policy(SET CMP0048 NEW)
 project (minimal_direct3d_example VERSION 1.0)
 
+# important flag, for __FILE__ macro to have absolute path 
+SET(COMP_FLAGS "/FC")
+SET(CMAKE_CXX_FLAGS "${COMP_FLAGS}")
 
 # use wWinMain/WinMain as entry point
 set(CMAKE_WIN32_EXECUTABLE TRUE)
