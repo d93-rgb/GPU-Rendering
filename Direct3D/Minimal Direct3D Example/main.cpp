@@ -263,6 +263,12 @@ void GraphicsState::init(HWND hWnd)
 	// get the address of the back buffer
 	DX::ThrowIfFailed(swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer));
 
+	if (pBackBuffer == nullptr)
+	{
+		std::cout << "error, failed to create back buffer" << std::endl;
+		std::exit(1);
+	}
+
 	// use the back buffer address to create the render target
 	DX::ThrowIfFailed(dev->CreateRenderTargetView(pBackBuffer, nullptr, &backbuffer));
 	pBackBuffer->Release();
