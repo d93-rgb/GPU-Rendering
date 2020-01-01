@@ -6,10 +6,11 @@ if(NOT MSVC)
 	SET(COMP_FLAGS "-lGL -lglfw -lGLEW -std=c++11")
 	SET(CMAKE_CXX_FLAGS "${COMP_FLAGS}")
 else(NOT MSVC)
-	#target_compile_options(minimal_opengl_example PUBLIC /FC)
 	# important flag, for __FILE__ macro to have absolute path 
 	SET(COMP_FLAGS "/FC")
 	SET(CMAKE_CXX_FLAGS "${COMP_FLAGS}")
+	# alternatively, add the following line after add_executable
+	#target_compile_options(minimal_opengl_example PUBLIC /FC)
 endif(NOT MSVC)
 
 ###########################################################################
@@ -24,46 +25,40 @@ endif()
 
 ###########################################################################
 # glfw
+# build as static library - so no dll
 add_subdirectory(ext/glfw)
 include_directories (
   ext/glfw/include
-  ${CMAKE_BINARY_DIR}/ext/glfw
 )
 ###########################################################################
 
 ###########################################################################
 # glew
+# build as dynamic library
 add_subdirectory(ext/glew-2.1.0/build/cmake)
 include_directories (
   ext/glew-2.1.0/include/GL
-  ${CMAKE_BINARY_DIR}/ext/glew/lib
 )
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(GLEW_LIB_NAME glew)
-else()
-	set(GLEW_LIB_NAME glew32)
-endif()
 ###########################################################################
 
 set(ALL_PROJECT_LIBRARIES
     OpenGL::GL
 	OpenGL::GLU
-	glfw
-	${GLEW_LIB_NAME})
-
-#link_directories( 
-#    ${CMAKE_BINARY_DIR}/ext/glfw/src
-#	${CMAKE_BINARY_DIR}/lib
-#	${CMAKE_BINARY_DIR}/bin)
+	glfw	# <- target name, contains absolute path to library
+	glew)	# <- also a target name
 
 # now include sub-projects
 add_subdirectory ("Minimal OpenGL Example")
 
+# print search paths for libraries
+#get_property(test_LINK_DIRECTORIES DIRECTORY PROPERTY LINK_DIRECTORIES)
+#message(${test_LINK_DIRECTORIES})
+
 SET(PROJECT_SOURCES "Minimal OpenGL Example/main.cpp")
 
-add_executable( minimal_opengl_example ${OPTIONS} ${PROJECT_SOURCES})
+add_executable(minimal_opengl_example ${OPTIONS} ${PROJECT_SOURCES})
 
-target_link_libraries( minimal_opengl_example ${ALL_PROJECT_LIBRARIES})
+target_link_libraries(minimal_opengl_example ${ALL_PROJECT_LIBRARIES})
 
 if(WIN32)
 	# post build command for copying dll files

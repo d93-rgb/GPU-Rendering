@@ -11,10 +11,6 @@
 #include <glew.h>
 #include <GLFW/glfw3.h>
 
-#define MAKE_STR(x) _MAKE_STR(x)
-#define _MAKE_STR(x) #x
-
-
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void checkCompileErrors(GLuint shader, std::string type);
 
@@ -37,7 +33,7 @@ void checkCompileErrors(GLuint shader, std::string type)
 		if (!success)
 		{
 			glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-			std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "/n" << infoLog 
+			std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "/n" << infoLog
 				<< "/n -- --------------------------------------------------- -- " << std::endl;
 		}
 	}
@@ -53,8 +49,19 @@ void checkCompileErrors(GLuint shader, std::string type)
 	}
 }
 
-int main(void) {
-	glfwInit();
+int main(void)
+{
+	int error_code;
+	const char* error_description;
+
+	if (glfwInit() == GLFW_FALSE)
+	{
+		error_code = glfwGetError(&error_description);
+
+		std::cout << error_description << std::endl;
+		std::exit(1);
+	}
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -68,9 +75,11 @@ int main(void) {
 		nullptr);
 
 	if (window == nullptr) {
-		std::cout << "Failed to create GLFW window" << std::endl;
+		error_code = glfwGetError(&error_description);
+
+		std::cout << error_description << std::endl;
 		glfwTerminate();
-		return -1;
+		std::exit(1);
 	}
 
 	glfwMakeContextCurrent(window);
@@ -80,15 +89,16 @@ int main(void) {
 
 	//glewExperimental = GL_TRUE;
 
-	if (glewInit() != GLEW_OK) {
-		std::cout << "Failed to initialize GLEW" << std::endl;
-		return -1;
+	if ((error_code = glewInit()) != GLEW_OK) {
+		std::cout << glewGetErrorString(error_code) << std::endl;
+		std::exit(1);
 	}
 
-	MAKE_STR(MINIMAL_OPENGL_EXAMPLE_SHADER_SRC_DIR);
-	std::cout << __FILE__ << std::endl;
-	std::string vertexPath = std::string(__FILE__) + "/../shaders/vertex_shader.glsl";
-	std::string fragPath = std::string(__FILE__) + "/../shaders/fragment_shader.glsl";
+	std::string file_path = std::string(__FILE__);
+	file_path = file_path.substr(0, file_path.find_last_of("\\/"));
+
+	std::string vertexPath = file_path + "/shaders/vertex_shader.glsl";
+	std::string fragPath = file_path + "/shaders/fragment_shader.glsl";
 
 	std::string vertexCode;
 	std::string fragmentCode;
@@ -117,14 +127,14 @@ int main(void) {
 	}
 	catch (std::ifstream::failure e)
 	{
-		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+		std::cout << "error: shader file(s) not successfully read" << std::endl;
+		std::exit(1);
 	}
 
 	const char* vShaderCode = vertexCode.c_str();
 	const char* fShaderCode = fragmentCode.c_str();
-	// 2. compile shaders
 	unsigned int vertex, fragment;
-	
+
 	// vertex shader
 	vertex = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex, 1, &vShaderCode, NULL);
@@ -136,14 +146,14 @@ int main(void) {
 	glShaderSource(fragment, 1, &fShaderCode, NULL);
 	glCompileShader(fragment);
 	checkCompileErrors(fragment, "FRAGMENT");
-	
+
 	// shader Program
 	GLint ID = glCreateProgram();
 	glAttachShader(ID, vertex);
 	glAttachShader(ID, fragment);
 	glLinkProgram(ID);
 	checkCompileErrors(ID, "PROGRAM");
-	
+
 	// delete the shaders as they're linked into our program now and no longer necessery
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
