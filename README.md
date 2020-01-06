@@ -7,4 +7,4 @@ For Windows	: Visual Studio comes with the Windows SDK containing an OpenGL impl
 For Linux	: Download the mesa library, package name depends on distribution.<br/>
 
 2. (linux) X11 any recent version<br/>
-If X11 is used, the development and extension libraries are needed as an dependecy for glfw.<br/>
+If X11 is used, the development and extension libraries are needed as a dependecy for glfw.<br/>
