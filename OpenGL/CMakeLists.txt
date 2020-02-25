@@ -2,6 +2,8 @@
 cmake_policy(SET CMP0048 NEW)
 project(minimal_opengl_exmaple VERSION 1.0)
 
+option(BUILD_SHARED_LIBS "Build shared libs for all libraries" OFF) 
+
 if(NOT MSVC)
 	SET(COMP_FLAGS "-lGL -lglfw -lGLEW -std=c++11")
 	SET(CMAKE_CXX_FLAGS "${COMP_FLAGS}")
