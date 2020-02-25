@@ -49,9 +49,6 @@ set(ALL_PROJECT_LIBRARIES
 	glfw	# <- target name, contains absolute path to library
 	glew)	# <- also a target name
 
-# now include sub-projects
-add_subdirectory ("Minimal OpenGL Example")
-
 # print search paths for libraries
 #get_property(test_LINK_DIRECTORIES DIRECTORY PROPERTY LINK_DIRECTORIES)
 #message(${test_LINK_DIRECTORIES})
