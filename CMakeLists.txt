@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.9)
 cmake_policy(SET CMP0048 NEW)
-project(minimal_opengl_exmaple VERSION 1.0)
+project(ShaderCompilationExample VERSION 1.0)
 
 if(MSVC)
 	message(STATUS "Adding Direct3d example...")
