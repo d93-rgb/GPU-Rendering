@@ -16,6 +16,6 @@ before_build:
 
     cmake -G "Visual Studio 16 2019" ..
 build:
-  project: c:\ShaderCompilationExample\ShaderCompilationExample\build\ShaderCompilationExample.sln
+  project: c:\ShaderCompilationExample\build\ShaderCompilationExample.sln
   parallel: true
   verbosity: normal

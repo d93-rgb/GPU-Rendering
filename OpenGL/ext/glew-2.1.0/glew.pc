@@ -1,6 +1,6 @@
-prefix=C:/Users/Damian/Documents/Programming/Cpp/ShaderCompileExample/out/install/x64-Debug
+prefix=C:/Program Files (x86)/ShaderCompilationExample
 exec_prefix=${prefix}
-libdir=C:/Users/Damian/Documents/Programming/Cpp/ShaderCompileExample/out/install/x64-Debug/lib
+libdir=C:/Program Files (x86)/ShaderCompilationExample/lib
 includedir=${prefix}/include
 
 Name: glew
