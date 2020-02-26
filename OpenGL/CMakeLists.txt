@@ -2,10 +2,10 @@
 cmake_policy(SET CMP0048 NEW)
 project(minimal_opengl_exmaple VERSION 1.0)
 
-option(BUILD_SHARED_LIBS "Build shared libs for all libraries" OFF) 
+option(BUILD_SHARED_LIBS "Build shared libs for all libraries" ON) 
 
 if(NOT MSVC)
-	SET(COMP_FLAGS "-lGL -lglfw -lGLEW -std=c++11")
+	SET(COMP_FLAGS "-lGL -lglfw -std=c++11")
 	SET(CMAKE_CXX_FLAGS "${COMP_FLAGS}")
 else(NOT MSVC)
 	# important flag, for __FILE__ macro to have absolute path 
@@ -37,17 +37,22 @@ include_directories (
 ###########################################################################
 # glew
 # build as dynamic library
-add_subdirectory(ext/glew-2.1.0/build/cmake)
-include_directories (
-  ext/glew-2.1.0/include/GL
-)
+#add_subdirectory(ext/glew-2.1.0/build/cmake)
+#include_directories (
+#  ext/glew-2.1.0/include/GL
+#)
+###########################################################################
+
+# gl3w 
+###########################################################################
+include_directories(ext/gl3w)
+set(GL3W_SOURCES ext/gl3w/GL/gl3w.c)
 ###########################################################################
 
 set(ALL_PROJECT_LIBRARIES
     OpenGL::GL
 	OpenGL::GLU
-	glfw	# <- target name, contains absolute path to library
-	glew)	# <- also a target name
+	glfw)	# <- target name, contains absolute path to library
 
 # print search paths for libraries
 #get_property(test_LINK_DIRECTORIES DIRECTORY PROPERTY LINK_DIRECTORIES)
@@ -55,23 +60,23 @@ set(ALL_PROJECT_LIBRARIES
 
 SET(PROJECT_SOURCES "Minimal OpenGL Example/main.cpp")
 
-add_executable(minimal_opengl_example ${OPTIONS} ${PROJECT_SOURCES})
+add_executable(minimal_opengl_example ${OPTIONS} ${PROJECT_SOURCES} ${GL3W_SOURCES})
 
 target_link_libraries(minimal_opengl_example ${ALL_PROJECT_LIBRARIES})
 
-if(WIN32)
+#if(WIN32)
 	# post build command for copying dll files
-	set (GLEW_DLL_DIR "${CMAKE_BINARY_DIR}/bin/")
+#	set (GLEW_DLL_DIR "${CMAKE_BINARY_DIR}/bin/")
 	
-	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		set(GLEW_DLL_NAME glew32d)
-	else()
-		set(GLEW_DLL_NAME glew32)
-	endif()
+#	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#		set(GLEW_DLL_NAME glew32d)
+#	else()
+#		set(GLEW_DLL_NAME glew32)
+#	endif()
 	
-	add_custom_command(TARGET minimal_opengl_example POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${GLEW_DLL_DIR}/${GLEW_DLL_NAME}.dll"
-			$<TARGET_FILE_DIR:minimal_opengl_example>)
-endif()
+#	add_custom_command(TARGET minimal_opengl_example POST_BUILD
+#		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#			"${GLEW_DLL_DIR}/${GLEW_DLL_NAME}.dll"
+#			$<TARGET_FILE_DIR:minimal_opengl_example>)
+#endif()
 

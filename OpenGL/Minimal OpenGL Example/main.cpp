@@ -8,7 +8,7 @@
 #include <cmath>
 #include <assert.h>
 
-#include <glew.h>
+#include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -87,10 +87,8 @@ int main(void)
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	glfwSetKeyCallback(window, key_callback);
 
-	//glewExperimental = GL_TRUE;
-
-	if ((error_code = glewInit()) != GLEW_OK) {
-		std::cout << glewGetErrorString(error_code) << std::endl;
+	if (gl3wInit()) {
+		std::cout << "failed to initialize OpenGL" << std::endl;
 		std::exit(1);
 	}
 
