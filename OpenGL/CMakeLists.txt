@@ -19,6 +19,7 @@ option(BUILD_SHARED_LIBS "Build shared libs for all libraries" ON)
 
 if(NOT MSVC)
 	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++11")
+	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ldl")
 else(NOT MSVC)
 	# important flag, for __FILE__ macro to have absolute path 
 	SET(COMP_FLAGS "/FC")
