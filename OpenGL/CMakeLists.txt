@@ -4,7 +4,7 @@ project(minimal_opengl_exmaple VERSION 1.0)
 
 option(BUILD_SHARED_LIBS "Build shared libs for all libraries" ON) 
 
-if(NOT MSVC)
+if(MSVC)
 	# important flag, for __FILE__ macro to have absolute path 
 	SET(COMP_FLAGS "/FC")
 	SET(CMAKE_CXX_FLAGS "${COMP_FLAGS}")
