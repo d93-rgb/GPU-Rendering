@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <cmath>
+#include <cstdlib>
 #include <assert.h>
 
 #include <GL/gl3w.h>
