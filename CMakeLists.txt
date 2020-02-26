@@ -14,7 +14,6 @@ else()
 	message(STATUS "*** ${CMAKE_BUILD_TYPE} build ***")
 endif()
 
-
 if(MSVC)
 	message(STATUS "Adding Direct3d example...")
 	add_subdirectory(Direct3D)
