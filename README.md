@@ -1,4 +1,6 @@
 # ShaderCompilationExample
+[![Build status](https://ci.appveyor.com/api/projects/status/ejs0k9k82ojla2rw?svg=true)](https://ci.appveyor.com/project/d93-rgb/shadercompilationexample)
+
 Small examples for Direct3D or OpenGL shader compilation.
 
 # Dependencies
