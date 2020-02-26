@@ -13,6 +13,6 @@ install:
     export PATH=${TRAVIS_BUILD_DIR}/cmake-local/bin:${PATH}
 script:
   - mkdir build
-  - cd build/Release
+  - cd build
   - cmake -G 'Unix Makefiles' ../../
   - make
