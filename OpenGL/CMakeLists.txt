@@ -3,7 +3,7 @@ cmake_policy(SET CMP0048 NEW)
 project(minimal_opengl_exmaple VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 
-option(BUILD_SHARED_LIBS "Build shared libs for all libraries" ON) 
+option(BUILD_SHARED_LIBS "Build shared libs for all libraries" OFF) 
 
 if(NOT MSVC)
 	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=gnu++11")
